@@ -2,6 +2,7 @@ services:
   airflow-init:
     build: .
     environment:
+      - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
       - AIRFLOW__CORE__FERNET_KEY=PAqBeGJLJTYFzVkOGHWIYXdLO7XdXz5yTdxAGJe9ezM=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
@@ -20,8 +21,10 @@ services:
   airflow-webserver:
     build: .
     depends_on:
-      - airflow-init
+      airflow-init:
+        condition: service_completed_successfully
     environment:
+      - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
       - AIRFLOW__CORE__FERNET_KEY=PAqBeGJLJTYFzVkOGHWIYXdLO7XdXz5yTdxAGJe9ezM=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
@@ -36,8 +39,10 @@ services:
   airflow-scheduler:
     build: .
     depends_on:
-      - airflow-init
+      airflow-init:
+        condition: service_completed_successfully
     environment:
+      - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
       - AIRFLOW__CORE__FERNET_KEY=PAqBeGJLJTYFzVkOGHWIYXdLO7XdXz5yTdxAGJe9ezM=
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
