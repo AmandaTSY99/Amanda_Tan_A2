@@ -1,5 +1,7 @@
 datamart/
 .Trash*/
+model_bank/
+test_model_train.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
