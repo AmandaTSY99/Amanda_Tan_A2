@@ -222,7 +222,7 @@ scale_cols = [
     # count columns — different ranges
     'Num_Bank_Accounts', 'Num_Credit_Card', 'Num_of_Loan',
     'Num_Credit_Inquiries', 'Num_of_Delayed_Payment',
-    'Delay_from_due_date', 'Interest_Rate', 'clickstream_days',
+    'Delay_from_due_date', 'Interest_Rate', 'clickstream_days', # to remove interest rate
     
     # engineered features
     'EMI_to_Salary_Ratio', 'Debt_to_Income', 'Disposable_Income',
