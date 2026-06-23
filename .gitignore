@@ -1,4 +1,5 @@
-datamart/
+datamart/**
+!datamart/.gitkeep
 .Trash*/
 model_bank/*.pkl
 test_model_train.ipynb
