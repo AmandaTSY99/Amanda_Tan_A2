@@ -103,7 +103,7 @@ with DAG(
     model_monitoring = BashOperator(
         task_id='model_monitoring',
         bash_command=(
-            'cd /opt/airflow && python scripts/model_monitoring_main.py '
+            'cd /opt/airflow && python scripts/monitoring.py '
             '--snapshotdate {{ ds }} '
             '&& echo "===== MODEL MONITORING COMPLETE FOR {{ ds }} ====="'
         )
