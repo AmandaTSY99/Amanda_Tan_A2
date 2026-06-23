@@ -1,10 +1,13 @@
-import argparse
+import sys
 import os
+sys.path.insert(0, '/opt/airflow')
+import argparse
 import glob
 import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
+import pyspark
 import random
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -103,7 +106,7 @@ metrics = pd.DataFrame([{
     'psi': psi
 }])
 
-output_dir = 'datamart/model_monitoring'
+output_dir = 'datamart/gold/model_monitoring'
 os.makedirs(output_dir, exist_ok=True)
 output_path = f'{output_dir}/metrics_{snapshot_date_str.replace("-", "_")}.parquet'
 spark.createDataFrame(metrics).write.mode('overwrite').parquet(output_path)

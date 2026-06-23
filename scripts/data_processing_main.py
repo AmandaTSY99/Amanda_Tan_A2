@@ -1,4 +1,6 @@
+import sys
 import os
+sys.path.insert(0, '/opt/airflow')
 import glob
 import pandas as pd
 import numpy as np

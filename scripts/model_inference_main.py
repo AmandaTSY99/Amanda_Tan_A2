@@ -1,4 +1,6 @@
+import sys
 import os
+sys.path.insert(0, '/opt/airflow')
 import glob
 import pandas as pd
 import pickle
@@ -24,21 +26,13 @@ from sklearn.metrics import make_scorer, f1_score, roc_auc_score
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
 
-print(f'\n{"="*60}')
-print('INFERENCE PIPELINE')
-print(f'{"="*60}')
-
-# Initialize SparkSession
-spark = pyspark.sql.SparkSession.builder \
-    .appName("dev") \
-    .master("local[*]") \
-    .getOrCreate()
-
-# Set log level to ERROR to hide warnings
-spark.sparkContext.setLogLevel("ERROR")
-
-
 def main(snapshotdate, modelname):
+    gold_directory = f'datamart/gold/model_predictions/{modelname[:-4]}/'
+    partition_name = f'{modelname[:-4]}_predictions_{snapshotdate.replace("-", "_")}.parquet'
+    if os.path.exists(gold_directory + partition_name):
+        print(f'Prediction already exists, skipping: {partition_name}')
+        return
+
     print('\n\n--- starting job ---\n\n')
     
     # Initialize SparkSession
@@ -205,14 +199,15 @@ def main(snapshotdate, modelname):
 
 
 if __name__ == "__main__":
-    # Setup argparse to parse command-line arguments
+    print(f'\n{"="*60}')
+    print('INFERENCE PIPELINE')
+    print(f'{"="*60}')
+
     parser = argparse.ArgumentParser(description="run job")
     parser.add_argument("--snapshotdate", type=str, required=True, help="YYYY-MM-DD")
     parser.add_argument("--modelname", type=str, required=True, help="model_name")
-    
+
     args = parser.parse_args()
-    
-    # Call main with arguments explicitly passed
     main(args.snapshotdate, args.modelname)
 
 

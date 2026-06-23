@@ -1,4 +1,6 @@
+import sys
 import os
+sys.path.insert(0, '/opt/airflow')
 import glob
 import pandas as pd
 import pickle
@@ -366,6 +368,28 @@ with open(file_path, 'wb') as file:
     pickle.dump(model_artefact, file)
 
 print(f"Model saved to {file_path}")
+
+
+# backfill inference for train-test and OOT periods
+from scripts.model_inference_main import main as run_inference
+
+def generate_first_of_month_dates(start_date_str, end_date_str):
+    start = datetime.strptime(start_date_str, "%Y-%m-%d")
+    end = datetime.strptime(end_date_str, "%Y-%m-%d")
+    dates, current = [], datetime(start.year, start.month, 1)
+    while current <= end:
+        dates.append(current.strftime("%Y-%m-%d"))
+        current += relativedelta(months=1)
+    return dates
+
+print('\n--- Backfilling inference for train-test and OOT periods ---')
+model_name = model_artefact['model_version'] + '.pkl'
+backfill_start = config['train_test_start_date'].strftime('%Y-%m-%d')
+backfill_end = config['oot_end_date'].strftime('%Y-%m-%d')
+
+for date_str in generate_first_of_month_dates(backfill_start, backfill_end):
+    print(f'Backfilling {date_str}...')
+    run_inference(date_str, model_name)
 
 
 

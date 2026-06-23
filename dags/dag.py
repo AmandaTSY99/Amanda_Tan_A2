@@ -1,3 +1,4 @@
+import os
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
@@ -12,7 +13,10 @@ default_args = {
 }
 
 def branch_setup(**context):
-    return 'bronze_lms' if context['ds'] == '2023-01-01' else 'skip_setup'
+    model_path = '/opt/airflow/model_bank/credit_model_xgb_2024_09_01.pkl'
+    if os.path.exists(model_path):
+        return 'skip_setup'
+    return ['bronze_lms', 'bronze_click', 'bronze_attr', 'bronze_fin']
 
 with DAG(
     'ml_pipeline',
@@ -21,7 +25,8 @@ with DAG(
     schedule_interval='0 0 1 * *',
     start_date=datetime(2023, 1, 1),
     end_date=datetime(2025, 1, 1),
-    catchup=True
+    catchup=True,
+    max_active_runs = 1
 ) as dag:
 
     # --- branch: only run setup on first execution ---
@@ -110,10 +115,10 @@ with DAG(
     )
 
     # DEPENDENCIES =====================================
-    branch >> bronze_lms   >> silver_lms   >> [gold_label, gold_features]
+    branch >> bronze_lms >> silver_lms >> [gold_label, gold_features]
     branch >> bronze_click >> silver_click >> gold_features
-    branch >> bronze_attr  >> silver_attr  >> gold_features
-    branch >> bronze_fin   >> silver_fin   >> gold_features
+    branch >> bronze_attr >> silver_attr >> gold_features
+    branch >> bronze_fin >> silver_fin >> gold_features
     [gold_label, gold_features] >> model_train >> join
     branch >> skip_setup >> join
     join >> model_inference >> model_monitoring

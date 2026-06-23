@@ -1,6 +1,6 @@
 datamart/
 .Trash*/
-model_bank/
+model_bank/*.pkl
 test_model_train.ipynb
 inference.ipynb
 model_inference_main-Copy1.py
