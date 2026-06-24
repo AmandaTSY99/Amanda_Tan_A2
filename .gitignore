@@ -5,6 +5,8 @@ model_bank/*.pkl
 test_model_train.ipynb
 inference.ipynb
 model_inference_main-Copy1.py
+monitoring.ipynb
+*.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
