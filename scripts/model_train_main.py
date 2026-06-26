@@ -180,16 +180,9 @@ for c in median_cols:
 print(f'Median imputation applied to: {median_cols}')
 
 
-# clickstream fe_ imputation — fit on train clickers only ===================================
+# fe_ columns left as NaN — XGBoost handles missing values natively
 fe_cols = [f'fe_{i}_mean' for i in range(1, 21)]
-fe_impute_vals = {}
-for c in fe_cols:
-    mean_val = X_train.loc[X_train['has_clickstream'] == 1, c].mean() 
-    fe_impute_vals[c] = mean_val
-    X_train[c] = X_train[c].fillna(mean_val)
-    X_test[c]  = X_test[c].fillna(mean_val)
-    X_oot[c]   = X_oot[c].fillna(mean_val)
-print(f'Clickstream mean imputation applied to: {fe_cols}')
+print(f'fe_ columns left as NaN — XGBoost handles missing values natively')
 
 
 # dummy encoding for object columns ===================================
@@ -224,7 +217,7 @@ scale_cols = [
     # count columns — different ranges
     'Num_Bank_Accounts', 'Num_Credit_Card', 'Num_of_Loan',
     'Num_Credit_Inquiries', 'Num_of_Delayed_Payment',
-    'Delay_from_due_date', 'Interest_Rate', 'clickstream_days', # to remove interest rate
+    'Delay_from_due_date', 'clickstream_days',
     
     # engineered features
     'EMI_to_Salary_Ratio', 'Debt_to_Income', 'Disposable_Income',
@@ -235,7 +228,7 @@ scale_cols = [
     'Loan_Debt_Consolidation_Loan', 'Loan_Home_Equity_Loan',
     'Loan_Mortgage_Loan', 'Loan_Not_Specified', 'Loan_Payday_Loan',
     'Loan_Personal_Loan', 'Loan_Student_Loan'
-] + [f'fe_{i}_mean' for i in range(1, 21)]
+]
 
 print(f'Standard scaling applied to {len(scale_cols)} columns: {scale_cols}')
 
@@ -326,7 +319,6 @@ model_artefact['preprocessing_transformers'] = {}
 model_artefact['preprocessing_transformers']['stdscaler'] = transformer_stdscaler
 model_artefact['preprocessing_transformers']['mean_imputations'] = mean_impute_vals
 model_artefact['preprocessing_transformers']['median_imputations'] = median_impute_vals
-model_artefact['preprocessing_transformers']['clickstream_imputations'] = fe_impute_vals
 model_artefact['preprocessing_transformers']['one_hot_encoding'] = ohe
 
 model_artefact['data_dates'] = config

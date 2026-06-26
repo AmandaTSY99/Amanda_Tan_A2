@@ -106,15 +106,9 @@ def main(snapshotdate, modelname):
     print(f'Median imputation complete.')
     
     
-    # clickstream imputation
-    fe_cols = [f'fe_{i}_mean' for i in range(1, 21)]
-    
-    for c in fe_cols:
-        val = model_artefact['preprocessing_transformers']['clickstream_imputations'][c]
-        inference_pdf[c] = inference_pdf[c].fillna(val)
-    print(f'Mean imputed to clickstream columns.')
-    
-    
+    # fe_ columns left as NaN — XGBoost handles missing values natively
+
+
     cat_cols = ['Occupation', 'Credit_Mix', 'Payment_of_Min_Amount', 
                 'Spending_Behaviour', 'Payments_Size']
     
@@ -139,7 +133,7 @@ def main(snapshotdate, modelname):
         # count columns — different ranges
         'Num_Bank_Accounts', 'Num_Credit_Card', 'Num_of_Loan',
         'Num_Credit_Inquiries', 'Num_of_Delayed_Payment',
-        'Delay_from_due_date', 'Interest_Rate', 'clickstream_days', # to remove interest rate
+        'Delay_from_due_date', 'clickstream_days',
         
         # engineered features
         'EMI_to_Salary_Ratio', 'Debt_to_Income', 'Disposable_Income',
@@ -150,7 +144,7 @@ def main(snapshotdate, modelname):
         'Loan_Debt_Consolidation_Loan', 'Loan_Home_Equity_Loan',
         'Loan_Mortgage_Loan', 'Loan_Not_Specified', 'Loan_Payday_Loan',
         'Loan_Personal_Loan', 'Loan_Student_Loan'
-    ] + [f'fe_{i}_mean' for i in range(1, 21)]
+    ]
     
     transformer_scaler = model_artefact['preprocessing_transformers']['stdscaler']
     inference_pdf[scale_cols] = transformer_scaler.transform(inference_pdf[scale_cols])

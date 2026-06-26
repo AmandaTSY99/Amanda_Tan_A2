@@ -11,7 +11,7 @@ import pyspark
 import random
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from sklearn.metrics import make_scorer, f1_score, roc_auc_score
+from sklearn.metrics import make_scorer, f1_score, roc_auc_score, fbeta_score
 
 
 print(f'\n{"="*60}')
@@ -38,7 +38,7 @@ snapshot_date_str = args.snapshotdate
 label_date_str = (datetime.strptime(snapshot_date_str, '%Y-%m-%d') + relativedelta(months=6)).strftime('%Y-%m-%d')
 
 
-# performance metric: ROC AUC =====================
+# performance metric: ROC AUC and f2 scores =====================
 pred_path = (
     'datamart/gold/model_predictions/credit_model_xgb_2024_09_01/'
     'credit_model_xgb_2024_09_01_predictions_'
@@ -54,6 +54,7 @@ label = spark.read.parquet(label_path).toPandas()
 
 merged = pred.merge(label[['Customer_ID', 'label']], on='Customer_ID', how='inner')
 auc = roc_auc_score(merged['label'], merged['model_predictions'])
+f2 = fbeta_score(merged['label'], (merged['model_predictions'] >= 0.5).astype(int), beta=2)
 
 
 # stability metric: PSI =======================
@@ -103,6 +104,7 @@ metrics = pd.DataFrame([{
     'snapshot_date': pd.Timestamp(snapshot_date_str),
     'model_name': 'credit_model_xgb_2024_09_01',
     'roc_auc': auc,
+    'f2_score': f2,
     'psi': psi
 }])
 
@@ -111,7 +113,7 @@ os.makedirs(output_dir, exist_ok=True)
 output_path = f'{output_dir}/metrics_{snapshot_date_str.replace("-", "_")}.parquet'
 spark.createDataFrame(metrics).write.mode('overwrite').parquet(output_path)
 
-print(f'Snapshot: {snapshot_date_str} | AUC: {auc:.4f} | PSI: {psi:.4f}')
+print(f'Snapshot: {snapshot_date_str} | AUC: {auc:.4f} | F2: {f2:.4f} | PSI: {psi:.4f}')
 
 
 
